@@ -112,15 +112,15 @@ def login():
 def get_room():
 	count=1
 	hotel=['汉庭酒店苏州新观前店','汉庭酒店苏州大学葑门店','汉庭酒店苏州园区金鸡湖店']
+	data={
+	'activityCode':activityCode,
+	'storeName':hotel[0],
+	'memberID':memberID,
+	'strDate':'2015/9/14'
+	}
 	while True:
 		print(isanom())
 		url='http://activity.h-world.com/PointExchangeRoom/Exchange'
-		data={
-		'activityCode':activityCode,
-		'storeName':hotel[0],
-		'memberID':memberID,
-		'strDate':'2015/9/14'
-		}
 		post=urllib.request.Request(url=url,headers=headers,data=urllib.parse.urlencode(data).encode(),method='POST')
 		exchange=opener.open(post)
 		result=json.loads(exchange.read().decode())
@@ -133,10 +133,14 @@ def get_room():
 		if code!='3':
 			data['storeName']=hotel[count]
 			count+=1
+			count=count%3
 		time.sleep(0.6)
 
 if __name__=='__main__':
 	init()
 	send_message()
 	login()
-	get_room()
+	start_now=input('现在开始吗？（输入Y开始）：')
+	if start_now:
+		get_room()
+	
