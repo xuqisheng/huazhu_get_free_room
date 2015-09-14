@@ -121,19 +121,19 @@ def get_room():
 		'memberID':memberID,
 		'strDate':'2015/9/14'
 		}
-		post=urllib.request.Request(url=url,headers=headers,data=urllib.request.urlencode(data).encode(),method='POST')
+		post=urllib.request.Request(url=url,headers=headers,data=urllib.parse.urlencode(data).encode(),method='POST')
 		exchange=opener.open(post)
 		result=json.loads(exchange.read().decode())
-		code=result['code']
+		code=str(result['code'])
 		try:
 			sign=the_code[code]
 			print(sign)
 		except Exception:
 			print(result)
-		if sign!='3':
+		if code!='3':
 			data['storeName']=hotel[count]
 			count+=1
-		time.sleep(5)
+		time.sleep(0.6)
 
 if __name__=='__main__':
 	init()
