@@ -26,121 +26,121 @@ headers={
 	'Accept-Encoding': 'sdch'
 }
 phone_num='18616760526'
-def init():
-	global opener
-	global sign
-	global ActivityType
-	global activityCode
-	global memberID
-	cj=http.cookiejar.CookieJar()
-	opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
+hotel=['汉庭酒店苏州新观前店','汉庭酒店苏州大学葑门店','汉庭酒店苏州园区金鸡湖店']
+date='2015/9/14'
 
-	main_url='http://activity.h-world.com/PointExchangeRoom/Secondkill/skill09'
-	main=urllib.request.Request(url=main_url,headers=headers,method='GET')
-	get=opener.open(main)
-	content=get.read().decode('utf-8')
-	sign=txtkey.findall(content)[0]
-	ActivityType=txtActivityType.findall(content)[0]
-	activityCode=hdActivityCode.findall(content)[0]
-	print(activityCode)
-	js_url=re.findall(r'"(http://ws-www.hantinghotels.com/Content_activty/js/SecondKill\.js.*?)"',content)[0]
-	js=urllib.request.urlopen(js_url)
-	js_con=js.read().decode()
-	memberID=re.findall(r"memberID: '(.*?)'",js_con)[0]
-	print(memberID)
+class Get_free():
+	def __init__(self):
+		cj=http.cookiejar.CookieJar()
+		self.opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
 
-def isanom():
-	url_isanom='http://activity.h-world.com/PointExchangeRoom/IsAnom'
-	anom=urllib.request.Request(url=url_isanom,headers=headers,data=urllib.parse.urlencode('').encode(),method='POST')
-	post=opener.open(anom)
-	result=json.loads(post.read().decode('utf-8'))
-	return result['code']
-def ismobile():
-	data={
-	'mobile':phone_num
-	}
-	url='http://activity.h-world.com/WechatFLS/ISMobile'
-	mobile=urllib.request.Request(url=url,headers=headers,data=urllib.parse.urlencode(data).encode(),method='POST')
-	post=opener.open(mobile)
-	result=json.loads(post.read().decode())
-	return result['code']
+		self.const={}
+		main_url='http://activity.h-world.com/PointExchangeRoom/Secondkill/skill09'
+		main=urllib.request.Request(url=main_url,headers=headers,method='GET')
+		get=self.opener.open(main)
+		content=get.read().decode('utf-8')
 
-def send_message():
-	print(isanom())
-	data={
-	'callback':'SmsGetMemberSms',
-	'Mobile':phone_num,
-	'ShortMessageType':'5',
-	'Sign':sign,
-	'ActivityType':ActivityType,
-	}
-	url='https://loginactivity.h-world.com/AuthService/SendShortMessage?'+urllib.parse.urlencode(data)
-	get=urllib.request.Request(url=url,headers=headers,method='GET')
-	con=opener.open(get)
-	#con=urllib.request.urlopen(url)
-	result=con.read().decode('utf-8')
-	print(result)
-def login():
-	img_data={
-	'mobile':phone_num,
-	'time':str(int(time.time()))
-	}
-	url_img='https://loginactivity.h-world.com/authservice/GetValidateCode?'+urllib.parse.urlencode(img_data)
-	get=urllib.request.Request(url=url_img,headers=headers,method='GET')
-	img=opener.open(get)
-	with open('test.jpg','wb') as f:
-		f.write(img.read())
-	print(ismobile())
-	verify_code=input('图片验证码：')
-	mobile_code=input('手机验证码：')
-	login_data={
-	'callback':'handleRegisterResult',
-	'Mobile':phone_num,
-	'ShortMessageType':'5',
-	'SendCode':mobile_code,
-	'ImgVerificationCode':verify_code,
-	'VNoHead':'',
-	'Sign':sign,
-	'ActivityType':ActivityType
-	}
-	url_login='https://loginactivity.h-world.com/AuthService/LoginOnlyMobile?'+urllib.parse.urlencode(login_data)
-	get=urllib.request.Request(url=url_login,headers=headers,method='GET')
-	login=opener.open(get)
-	result=login.read().decode()
-	print(result)
+		self.const['sign']=txtkey.findall(content)[0]
+		self.const['ActivityType']=txtActivityType.findall(content)[0]
+		self.const['activityCode']=hdActivityCode.findall(content)[0]
 
-def get_room():
-	count=1
-	hotel=['汉庭酒店苏州新观前店','汉庭酒店苏州大学葑门店','汉庭酒店苏州园区金鸡湖店']
-	data={
-	'activityCode':activityCode,
-	'storeName':hotel[0],
-	'memberID':memberID,
-	'strDate':'2015/9/14'
-	}
-	while True:
-		print(isanom())
+		js_url=re.findall(r'"(http://ws-www\.hantinghotels\.com/Content_activty/js/SecondKill\.js.*?)"',content)[0]
+		js=urllib.request.urlopen(js_url)
+		js_con=js.read().decode()
+		self.const['memberID']=re.findall(r"memberID: '(.*?)'",js_con)[0]
+
+		js_url=re.findall(r'"(http://ws-www\.hantinghotels\.com/Content_activty/js/ActivityPublic\.js.*?)"',content)[0]
+		js=urllib.request.urlopen(js_url)
+		js_con=js.read().decode()
+		self.const['ShortMessageType']=re.findall(r'"ShortMessageType": (\d+?),',js_con)[0]
+		print(self.const['ShortMessageType'])
+
+
+	def isanom(self):
+		url='http://activity.h-world.com/PointExchangeRoom/IsAnom'
+		anom=urllib.request.Request(url=url,headers=headers,data=urllib.parse.urlencode('').encode(),method='POST')
+		post=self.opener.open(anom)
+		result=json.loads(post.read().decode('utf-8'))
+		return result['code']
+	def ismobile(self):
+		data={
+		'mobile':phone_num
+		}
+		url='http://activity.h-world.com/WechatFLS/ISMobile'
+		mobile=urllib.request.Request(url=url,headers=headers,data=urllib.parse.urlencode(data).encode(),method='POST')
+		post=self.opener.open(mobile)
+		result=json.loads(post.read().decode())
+		return result['code']
+
+	def send_message(self):
+		print(self.isanom())
+		data={
+		'callback':'SmsGetMemberSms',
+		'Mobile':phone_num,
+		'ShortMessageType':self.const['ShortMessageType'],
+		'Sign':self.const['sign'], 
+		'ActivityType':self.const['ActivityType'],
+		}
+		url='https://loginactivity.h-world.com/AuthService/SendShortMessage?'+urllib.parse.urlencode(data)
+		get=urllib.request.Request(url=url,headers=headers,method='GET')
+		con=self.opener.open(get)
+		result=con.read().decode('utf-8')
+		print(result)
+	def login(self):
+		img_data={
+		'mobile':phone_num,
+		'time':str(int(time.time()))
+		}
+		url_img='https://loginactivity.h-world.com/authservice/GetValidateCode?'+urllib.parse.urlencode(img_data)
+		get=urllib.request.Request(url=url_img,headers=headers,method='GET')
+		img=self.opener.open(get)
+		with open('test.jpg','wb') as f:
+			f.write(img.read())
+		print(self.ismobile())
+		verify_code=input('图片验证码：')
+		mobile_code=input('手机验证码：')
+		login_data={
+		'callback':'handleRegisterResult',
+		'Mobile':phone_num,
+		'ShortMessageType':self.const['ShortMessageType'],
+		'SendCode':mobile_code,
+		'ImgVerificationCode':verify_code,
+		'VNoHead':'',
+		'Sign':self.const['sign'],
+		'ActivityType':self.const['ActivityType']
+		}
+		url_login='https://loginactivity.h-world.com/AuthService/LoginOnlyMobile?'+urllib.parse.urlencode(login_data)
+		get=urllib.request.Request(url=url_login,headers=headers,method='GET')
+		login=self.opener.open(get)
+		result=login.read().decode()
+		print(result)
+
+	def get_room(self):
+		count=1
+		data={
+		'activityCode':self.const['activityCode'],
+		'storeName':hotel[0],
+		'memberID':self.const['memberID'],
+		'strDate':date
+		}
 		url='http://activity.h-world.com/PointExchangeRoom/Exchange'
-		post=urllib.request.Request(url=url,headers=headers,data=urllib.parse.urlencode(data).encode(),method='POST')
-		exchange=opener.open(post)
-		result=json.loads(exchange.read().decode())
-		code=str(result['code'])
-		try:
-			sign=the_code[code]
-			print(sign)
-		except Exception:
-			print(result)
-		if code!='3':
-			data['storeName']=hotel[count]
-			count+=1
-			count=count%3
-		time.sleep(0.6)
+		while True:
+			print(self.isanom())
+			post=urllib.request.Request(url=url,headers=headers,data=urllib.parse.urlencode(data).encode(),method='POST')
+			con=self.opener.open(post)
+			result=json.loads(con.read().decode())
+			code=str(result['code'])
+			try:
+				sign=the_code[code]
+				print(sign)
+			except Exception:
+				print(result)
+			if code!='3':
+				data['storeName']=hotel[count]
+				count+=1
+				count=count%3
+			time.sleep(0.6)
 
 if __name__=='__main__':
-	init()
-	send_message()
-	login()
-	start_now=input('现在开始吗？（输入Y开始）：')
-	if start_now:
-		get_room()
+	free=Get_free()
 	
