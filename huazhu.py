@@ -25,6 +25,7 @@ headers={
 	'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3',
 	'Accept-Encoding': 'sdch'
 }
+phone_num='18616760526'
 def init():
 	global opener
 	global sign
@@ -56,7 +57,7 @@ def isanom():
 	return result['code']
 def ismobile():
 	data={
-	'mobile':'18616760526'
+	'mobile':phone_num
 	}
 	url='http://activity.h-world.com/WechatFLS/ISMobile'
 	mobile=urllib.request.Request(url=url,headers=headers,data=urllib.parse.urlencode(data).encode(),method='POST')
@@ -68,7 +69,7 @@ def send_message():
 	print(isanom())
 	data={
 	'callback':'SmsGetMemberSms',
-	'Mobile':'18616760526',
+	'Mobile':phone_num,
 	'ShortMessageType':'5',
 	'Sign':sign,
 	'ActivityType':ActivityType,
@@ -79,9 +80,9 @@ def send_message():
 	#con=urllib.request.urlopen(url)
 	result=con.read().decode('utf-8')
 	print(result)
-def test():
+def login():
 	img_data={
-	'mobile':'18616760526',
+	'mobile':phone_num,
 	'time':str(int(time.time()))
 	}
 	url_img='https://loginactivity.h-world.com/authservice/GetValidateCode?'+urllib.parse.urlencode(img_data)
@@ -90,11 +91,11 @@ def test():
 	with open('test.jpg','wb') as f:
 		f.write(img.read())
 	print(ismobile())
-	verify_code=input('verify code:')
-	mobile_code=input('mobile code:')
+	verify_code=input('图片验证码：')
+	mobile_code=input('手机验证码：')
 	login_data={
 	'callback':'handleRegisterResult',
-	'Mobile':'18616760526',
+	'Mobile':phone_num,
 	'ShortMessageType':'5',
 	'SendCode':mobile_code,
 	'ImgVerificationCode':verify_code,
@@ -109,12 +110,14 @@ def test():
 	print(result)
 
 def get_room():
+	count=1
 	hotel=['汉庭酒店苏州新观前店','汉庭酒店苏州大学葑门店','汉庭酒店苏州园区金鸡湖店']
 	while True:
+		print(isanom())
 		url='http://activity.h-world.com/PointExchangeRoom/Exchange'
 		data={
 		'activityCode':activityCode,
-		'storeName':'汉庭酒店苏州新观前店',
+		'storeName':hotel[0],
 		'memberID':memberID,
 		'strDate':'2015/9/14'
 		}
@@ -127,12 +130,13 @@ def get_room():
 			print(sign)
 		except Exception:
 			print(result)
-		if sign=='5':
-			data
+		if sign!='3':
+			data['storeName']=hotel[count]
+			count+=1
 		time.sleep(5)
 
 if __name__=='__main__':
 	init()
-#	send_message()
-#	test()
-#	get_room()
+	send_message()
+	login()
+	get_room()
