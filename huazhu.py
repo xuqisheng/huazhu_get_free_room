@@ -12,8 +12,8 @@ import json
 import time
 
 phone_num = '18616760526'  # 登录手机号，是注册过的
-hotel = ['汉庭酒店苏州新观前店', '汉庭酒店苏州大学葑门店', '汉庭酒店苏州园区金鸡湖店']  # 门店列表，按优先级排列
-date = '2015/9/14'  # 对应抢免房的日期
+hotel = ['汉庭酒店青岛宁夏路店', '怡莱酒店日照海曲中路店', '汉庭酒店苏州园区金鸡湖店']  # 门店列表，按优先级排列
+date = '2015/9/15'  # 对应抢免房的日期
 
 headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/web',
@@ -59,7 +59,6 @@ class Get_free():
         js_con = js.read().decode()
         self.const['ShortMessageType'] = re.findall(
             r'"ShortMessageType": (\d+?),', js_con)[0]
-        print(self.const['ShortMessageType'])
 
     def isanom(self):
         """发送isanom请求
@@ -91,7 +90,7 @@ class Get_free():
         触发发送短信，并显示请求返回结果
         是否成功发送短信会在结果中显示
         """
-        print(self.isanom())
+        print('usanom:', self.isanom())
         data = {
             'callback': 'SmsGetMemberSms',
             'Mobile': phone_num,
@@ -108,11 +107,13 @@ class Get_free():
 
     def login(self):
         """登录
+        调用send_message()发送短信验证码
         首先下载验证码
         然后输入图片验证码和手机验证码
         最后显示请求返回结果
         若登录正常会得到用户信息
         """
+        self.send_message()
         img_data = {
             'mobile': phone_num,
             'time': str(int(time.time()))
@@ -124,7 +125,7 @@ class Get_free():
         img = self.opener.open(get)
         with open('test.jpg', 'wb') as f:
             f.write(img.read())
-        print(self.ismobile())
+        print('ismobile:', self.ismobile())
         verify_code = input('图片验证码：')
         mobile_code = input('手机验证码：')
         login_data = {
@@ -151,7 +152,10 @@ class Get_free():
         需要设置抢哪几家门店的房
         若活动还未开始，则一直循环请求第一家
         当开始时会循环请求list中的门店
+        若抢到免房券，则程序停止运行
         """
+        input('输入任意内容开始抢房：')
+
         the_code = {
             '99': '太棒了！恭喜！您已成功兑换免房券,快去您的账户查看吧！',
             '2.1': '不在开抢日期！',
@@ -172,7 +176,7 @@ class Get_free():
         }
         url = 'http://activity.h-world.com/PointExchangeRoom/Exchange'
         while True:
-            print(self.isanom())
+            print('isanom:', self.isanom())
             post = urllib.request.Request(
                 url=url, headers=headers, data=urllib.parse.urlencode(data).encode(), method='POST')
             con = self.opener.open(post)
@@ -184,10 +188,15 @@ class Get_free():
             except Exception:
                 print(result)
             if code != '3':  # 如果尚未开始，则循环请求，不改变门店
+                if code == '99':
+                    print('恭喜您抢到免房券，门店是：', data['storeName'])
+                    return
                 data['storeName'] = hotel[count]
                 count += 1
                 count = count % 3
-            time.sleep(0.6)  # 请求时间间隔
+            time.sleep(3)  # 请求时间间隔
 
 if __name__ == '__main__':
     free = Get_free()
+    free.login()
+    free.get_room()
